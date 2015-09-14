@@ -1,0 +1,100 @@
+layer {
+  name: "h_0_0"
+  type: "DummyData"
+  top: "h_0_0"
+  dummy_data_param {
+    shape {
+      dim: 1
+      dim: 256
+    }
+  }
+}
+layer {
+  name: "x_0"
+  type: "DummyData"
+  top: "x_0"
+  dummy_data_param {
+    shape {
+      dim: 1
+      dim: 101
+    }
+  }
+}
+layer {
+  name: "y_0"
+  type: "DummyData"
+  top: "y_0"
+  dummy_data_param {
+    shape {
+      dim: 1
+    }
+  }
+}
+layer {
+  name: "Concat1"
+  type: "Concat"
+  bottom: "x_0"
+  bottom: "h_0_0"
+  top: "Concat1"
+}
+layer {
+  name: "fc_0_0"
+  type: "InnerProduct"
+  bottom: "Concat1"
+  top: "InnerProduct1"
+  param {
+    name: "W_0"
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    name: "b_0"
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 256
+    weight_filler {
+      type: "uniform"
+      min: -0.01
+      max: 0.01
+    }
+  }
+}
+layer {
+  name: "h_1_0"
+  type: "TanH"
+  bottom: "InnerProduct1"
+  top: "h_1_0"
+}
+layer {
+  name: "fc_0_1"
+  type: "InnerProduct"
+  bottom: "h_1_0"
+  top: "z_0"
+  param {
+    name: "W_1"
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    name: "b_1"
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 101
+    weight_filler {
+      type: "uniform"
+      min: -0.01
+      max: 0.01
+    }
+  }
+}
+layer {
+  name: "loss_0"
+  type: "SoftmaxWithLoss"
+  bottom: "z_0"
+  bottom: "y_0"
+  top: "loss_0"
+}
