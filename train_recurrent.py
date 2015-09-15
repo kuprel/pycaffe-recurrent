@@ -44,7 +44,7 @@ while True:
 
 		solver.step(step_num)
 
-		# Test Net
+		# Test net
 		if solver.iter%10 == 0:
 
 			# Save params
@@ -56,7 +56,7 @@ while True:
 			for t in range(T):
 				xt = solver.test_nets[0].blobs[sf('x',t)].data
 				yt = solver.test_nets[0].blobs[sf('y',t)].data
-				if i>0: xt[range(b), X[i-1+m//2,t]] = 0
+				if i>0: xt[range(b), X[i+m//2-1,t]] = 0
 				xt[range(b), X[i+m//2,t]] = 1
 				yt[...] = Y[i+m//2,t]
 			
@@ -67,14 +67,12 @@ while True:
 			loss = numpy.mean([loss(t) for t in range(T)])	
 			print 'test loss: {}, iter {}'.format(loss, solver.iter)
 
-	# Reset inputs
-	for t in range(T):
-		solver.test_nets[0].blobs[sf('x',t)].data[...] = 0
-		solver.net.blobs[sf('x',t)].data[...] = 0
-
-	# Reset state
-	for l in range(L):
-		solver.net.blobs[sf('h',0,l)].data[...] = 0
+	# Reset input and initial state
+	for net in [solver.net, solver.test_nets[0]]:
+		for t in range(T):
+			net.blobs[sf('x',t)].data[...] = 0
+		for l in range(L):
+			net.blobs[sf('h',0,l)].data[...] = 0
 
 	epoch += 1
 	step_num = max(1, step_num/2)
