@@ -1,7 +1,7 @@
 import caffe, numpy, string, os, shutil, cPickle as pickle
 
-save_pkl = lambda file, obj: pickle.dump(obj, open(file, 'wb'), protocol=-1)
-load_pkl = lambda file: pickle.load(open(file, 'rb'))
+save_pkl = lambda f, obj: pickle.dump(obj, open(f, 'wb'), protocol=-1)
+load_pkl = lambda f: pickle.load(open(f, 'rb'))
 
 sf = lambda *x: string.join([str(i) for i in x], '_')
 
@@ -14,7 +14,7 @@ L = max([int(i.split('_')[-1])
 		 for i in solver.net.blobs.keys()
 		 if 'h_{}_'.format(T) in i]) + 1
 
-PC = [(sf('fc',l), sf('fc',0,l)) for l in range(L+1)]
+param_corresp = [(sf('fc',l), sf('fc',0,l)) for l in range(L+1)]
 
 if os.path.isdir('params'): shutil.rmtree('params')
 os.makedirs('params')
@@ -48,7 +48,8 @@ while True:
 		if solver.iter%10 == 0:
 
 			# Save params
-			params = {ki: [pr.data for pr in solver.net.params[kj]] for ki, kj in PC}
+			params = {ki: [pr.data for pr in solver.net.params[kj]] 
+					  for ki, kj in param_corresp}
 			save_pkl('params/iter%08d.pkl'%solver.iter, params)
 
 			# Insert data
