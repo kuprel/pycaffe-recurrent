@@ -65,7 +65,7 @@ while True:
 			# Compute loss
 			loss = lambda t: solver.test_nets[0].blobs[sf('loss',t)].data
 			loss = numpy.mean([loss(t) for t in range(T)])	
-			print 'test loss:  {}, iter {}'.format(loss, solver.iter)
+			print 'test loss: {}, iter {}'.format(loss, solver.iter)
 
 	# Reset inputs
 	for t in range(T):
