@@ -3,7 +3,7 @@ IPython notebook for training multilayer LSTM and RNN networks with pycaffe
 
 
 Example of generated output after training on Linux kernel for a couple hours:
- ```
+ ``` cpp
 #include "features.h"
 
 #define SCHED_FEAT_NR]);
