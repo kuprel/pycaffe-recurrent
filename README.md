@@ -2,7 +2,7 @@
 IPython notebook for training multilayer LSTM and RNN networks with pycaffe
 
 
-Example of generated output after training on Linux kernel for a couple hours:
+Example of generated code after training on the Linux kernel for a couple hours:
  ``` cpp
 #include "features.h"
 
