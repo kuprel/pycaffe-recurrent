@@ -6,7 +6,6 @@ load_pkl = lambda file: pickle.load(open(file, 'rb'))
 sf = lambda *x: string.join([str(i) for i in x], '_')
 
 solver = caffe.get_solver('solver.prototxt')
-PC = load_pkl('PC.pkl')
 
 X = numpy.load('X.npy')
 Y = numpy.load('Y.npy')
@@ -14,6 +13,8 @@ m, T, b = X.shape
 L = max([int(i.split('_')[-1]) 
 		 for i in solver.net.blobs.keys()
 		 if 'h_{}_'.format(T) in i]) + 1
+
+PC = [(sf('fc',l), sf('fc',0,l)) for l in range(L+1)]
 
 if os.path.isdir('params'): shutil.rmtree('params')
 os.makedirs('params')
