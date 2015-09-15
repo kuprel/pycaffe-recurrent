@@ -1,4 +1,4 @@
-import caffe, numpy, string, os, cPickle as pickle
+import caffe, numpy, string, os, shutil, cPickle as pickle
 
 save_pkl = lambda file, obj: pickle.dump(obj, open(file, 'wb'), protocol=-1)
 load_pkl = lambda file: pickle.load(open(file, 'rb'))
@@ -15,10 +15,10 @@ L = max([int(i.split('_')[-1])
 		 for i in solver.net.blobs.keys()
 		 if 'h_{}_'.format(T) in i]) + 1
 
-if not os.path.isdir('params'): os.makedirs('params')
+if os.path.isdir('params'): shutil.rmtree('params')
+os.makedirs('params')
 
 step_num = 10
-
 epoch = 1
 
 while True:
@@ -58,7 +58,7 @@ while True:
 				xt[range(b), X[i+m//2,t]] = 1
 				yt[...] = Y[i+m//2,t]
 			
-			solver.test_nets[0].forward();
+			solver.test_nets[0].forward()
 
 			# Compute loss
 			loss = lambda t: solver.test_nets[0].blobs[sf('loss',t)].data
