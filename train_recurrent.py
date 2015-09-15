@@ -50,13 +50,6 @@ while True:
 			params = {ki: [pr.data for pr in solver.net.params[kj]] for ki, kj in PC}
 			save_pkl('params/iter%08d.pkl'%solver.iter, params)
 
-			# Insert params
-			for _, kpr in PC:
-				PR1 = solver.net.params[kpr]
-				PR2 = solver.test_nets[0].params[kpr]
-				for pr1, pr2 in zip(PR1, PR2):
-					pr2.data[...] = pr1.data
-
 			# Insert data
 			for t in range(T):
 				xt = solver.test_nets[0].blobs[sf('x',t)].data
