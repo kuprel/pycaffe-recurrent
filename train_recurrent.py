@@ -42,15 +42,15 @@ while True:
 			xt[range(b), X[i,t]] = 1
 			yt[...] = Y[i,t]
 
-		solver.step(step_num)
-
 		# Test net
-		if solver.iter%10 == 0:
+		if solver.iter%1 == 0:
 
 			# Save params
 			params = {ki: [pr.data for pr in solver.net.params[kj]] 
 					  for ki, kj in param_corresp}
 			save_pkl('params/iter%08d.pkl'%solver.iter, params)
+
+			solver.step(step_num)
 
 			# Insert data
 			for t in range(T):
