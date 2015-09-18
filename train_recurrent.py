@@ -19,7 +19,7 @@ param_corresp = [(sf('fc',l), sf('fc',0,l)) for l in range(L+1)]
 if os.path.isdir('params'): shutil.rmtree('params')
 os.makedirs('params')
 
-step_num = 10
+step_num = 3
 epoch = 1
 
 while True:
@@ -42,6 +42,9 @@ while True:
 			xt[range(b), X[i,t]] = 1
 			yt[...] = Y[i,t]
 
+		# Forward, backward, update step_num times
+		solver.step(step_num)
+
 		# Test net
 		if solver.iter%1 == 0:
 
@@ -49,8 +52,6 @@ while True:
 			params = {ki: [pr.data for pr in solver.net.params[kj]] 
 					  for ki, kj in param_corresp}
 			save_pkl('params/iter%08d.pkl'%solver.iter, params)
-
-			solver.step(step_num)
 
 			# Insert data
 			for t in range(T):
