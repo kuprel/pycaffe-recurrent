@@ -72,12 +72,6 @@ def update_iter(itr, epoch, tt):
 		print '{} epoch {}'.format(tt, epoch)
 	return itr, epoch, new_epoch
 
-def initialize(tt):
-	copy_state(nets[tt])
-	X = data[tt]['X'][i]
-	Y = data[tt]['Y'][i]
-	insert_data(nets[tt], X, Y)
-
 step_num = 5
 test_iter = 5
 epoch_train, epoch_test = 1, 1
@@ -87,14 +81,20 @@ i, j = 0, 0
 
 while True:
 
-	initialize('train')
+	copy_state(nets['train'])
+	X = data['train']['X'][i]
+	Y = data['train']['Y'][i]
+	insert_data(nets['train'], X, Y)
 	solver.step(step_num)
 	i, epoch_train, new_epoch = update_iter(i, epoch_train, 'train')
 	if new_epoch: step_num = max(1, step_num/2)
 
 	if solver.iter%test_iter == 0:
 
-		initialize('test')
+		copy_state(nets['test'])
+		X = data['test']['X'][j]
+		Y = data['test']['Y'][j]
+		insert_data(nets['test'], X, Y)
 		nets['test'].forward()
 
 		loss = compute_loss(nets['test'])
