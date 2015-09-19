@@ -2,7 +2,7 @@
 IPython notebook for training multilayer LSTM and RNN networks with pycaffe
 
 
-Example of generated code after training on the Linux kernel for a few hours:
+Example of generated code after training on the Linux kernel for a few hours (average test loss ~1):
  ``` cpp
 static int __init bit_next_worker_lock_update(void *arg)
 {
