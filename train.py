@@ -17,12 +17,19 @@ data_disk.close()
 
 # Initialize solver
 solver = caffe.get_solver('solver.prototxt')
+nets = {
+	'train': solver.net,
+	'test': solver.test_nets[0]
+}
 
 # Create params directory
 if os.path.isdir('params'): shutil.rmtree('params')
 os.makedirs('params')
 
 def copy_state(net):
+	"""
+	Copies previous final state to current initial state
+	"""
 	for l in range(L):
 		state_i = net.blobs[sf('h',0,l)].data
 		state_f = net.blobs[sf('h',T,l)].data
@@ -49,46 +56,51 @@ def compute_loss(net):
 	loss = numpy.mean([loss(t) for t in range(T)])
 	return loss
 
+def update_iter(itr, epoch, tt):
+	"""
+	Increments iter, checks for new epoch, 
+	resets state to zero if new epoch
+	"""
+	itr += 1
+	new_epoch = False
+	if itr == len(data[tt]['X']):
+		new_epoch = True
+		epoch += 1
+		itr = 0
+		for l in range(L):
+			nets[tt].blobs[sf('h',0,l)].data[...] = 0
+		print '{} epoch {}'.format(tt, epoch)
+	return itr, epoch, new_epoch
+
+def initialize(tt):
+	copy_state(nets[tt])
+	X = data[tt]['X'][i]
+	Y = data[tt]['Y'][i]
+	insert_data(nets[tt], X, Y)
+
 step_num = 5
 test_iter = 5
-epoch, epoch_test = 1, 1
+epoch_train, epoch_test = 1, 1
 
 # Test and train iters
 i, j = 0, 0
 
 while True:
 
-	net = solver.net
-	copy_state(net)
-	X = data['train']['X'][i]
-	Y = data['train']['Y'][i]
-	insert_data(net, X, Y)
+	initialize('train')
 	solver.step(step_num)
+	i, epoch_train, new_epoch = update_iter(i, epoch_train, 'train')
+	if new_epoch: step_num = max(1, step_num/2)
 
 	if solver.iter%test_iter == 0:
 
-		net = solver.test_nets[0]
-		copy_state(net)
-		X = data['test']['X'][j]
-		Y = data['test']['Y'][j]
-		insert_data(net, X, Y)
-		net.forward()
+		initialize('test')
+		nets['test'].forward()
 
-		loss = compute_loss(net)
+		loss = compute_loss(nets['test'])
 		print 'test loss: {}, iter {}'.format(loss, solver.iter)
 
 		params_file = 'params/iter%08d.h5'%solver.iter
-		save_params(net, params_file)
+		save_params(nets['test'], params_file)
 
-		j += 1
-		if j == len(data['test']['X']):
-			epoch_test += 1
-			print 'Test Epoch {}'.format(epoch_test)
-			j = 0
-
-	i += 1
-	if i == len(data['train']['X']):
-		epoch += 1
-		print 'Epoch {}'.format(epoch)
-		i = 0
-		step_num = max(1, step_num/2)
+		j, epoch_test, new_epoch = update_iter(j, epoch_test, 'test')
