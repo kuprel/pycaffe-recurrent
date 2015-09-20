@@ -42,14 +42,12 @@ def insert_data(net, X, Y):
 		net.blobs[sf('y',t)].data[...] = Y[t]
 
 def save_params(net, params_file):
-	param_corresp = [(sf('fc',l), sf('fc',0,l)) 
-						 for l in range(L+1)]
 	params = h5py.File(params_file, 'w')
-	for ki, kj in param_corresp:
-		pr = solver.net.params[kj]
-		params.create_group(ki)
-		params[ki]['W'] = pr[0].data
-		params[ki]['b'] = pr[1].data
+	for l in range(L+1):
+		pr = solver.net.params[sf('fc',0,l)]
+		params.create_group(sf('fc',l))
+		params[sf('fc',l)]['W'] = pr[0].data
+		params[sf('fc',l)]['b'] = pr[1].data
 
 def compute_loss(net):
 	loss = lambda t: net.blobs[sf('loss',t)].data
@@ -69,11 +67,10 @@ def update_iter(itr, epoch, tt):
 		itr = 0
 		for l in range(L):
 			nets[tt].blobs[sf('h',0,l)].data[...] = 0
-		print '{} epoch {}'.format(tt, epoch)
 	return itr, epoch, new_epoch
 
 step_num = 5
-test_iter = 5
+test_interval = 5
 epoch_train, epoch_test = 1, 1
 
 # Test and train iters
@@ -87,9 +84,11 @@ while True:
 	insert_data(nets['train'], X, Y)
 	solver.step(step_num)
 	i, epoch_train, new_epoch = update_iter(i, epoch_train, 'train')
-	if new_epoch: step_num = max(1, step_num/2)
+	if new_epoch:
+		step_num = max(1, step_num/2)
+		print 'Epoch {}'.format(epoch_train)
 
-	if solver.iter%test_iter == 0:
+	if solver.iter%test_interval == 0:
 
 		copy_state(nets['test'])
 		X = data['test']['X'][j]
